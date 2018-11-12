@@ -1,5 +1,7 @@
+<html>
 <head>
     <title>CS3012-GitHub API Assignment</title>
+    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
 </head>
 <body>
     <div id = "main">
@@ -9,4 +11,38 @@
         <a href="#" id="submit">Enter</a>
         <div id="userdata" class="clearfix"></div>
     </div
+
+<script type = "text/javascript">
+    $(function(){
+        $('#submit').on('click', function(e){
+            e.preventDefault();
+            $('userdata').html('<div id="loader"><p="Loading user ..."</p></div>');
+            var username = $('user').val();
+            var userurl  = 'https://api.github.com/users/'+username;
+            var reposurl = 'https://api.github.com/users/'+username+'/repos';
+
+            requestJSON(userurl,function(json)) {
+                if(json.message == "Not FOund" || username == ''){
+                    $('#userdata').html("<h2>Invalid input, no user found</h2>");
+                
+                }
+                else{
+                    var name    =json.name;
+                    var username =json.login;
+                    var avatar = json.avatar_url;
+                    var profurl = json.html_url;
+                    var location = json.location;
+                    var followers = json.followers;
+                    var following = json.following;
+                    var repocount = json.public_repos;
+
+                
+                }
+            }
+        }
+    }
+}
+
+</script>
 </body>
+</html>
