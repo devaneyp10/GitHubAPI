@@ -1,48 +1,111 @@
-<html>
+<!doctype html>
+<html lang="en-US">
 <head>
-    <title>CS3012-GitHub API Assignment</title>
-    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+
+  <title>CS3012-GitHub API Assignment</title>
+  <meta name="author" content="Paul Devaney">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">  <link href="https://fonts.googleapis.com/css?family=Lato|Open+Sans|Raleway" rel="stylesheet">  <link rel="shortcut icon" href="http://d15dxvojnvxp1x.cloudfront.net/assets/favicon.ico">
+  <link rel="icon" href="http://d15dxvojnvxp1x.cloudfront.net/assets/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+
+  <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
 </head>
+
 <body>
-    <div id = "main">
-        <h1>CS3012- GitHub API Assignment</h1>
-        <p>Enter a username: </p>
-        <input type="text" name="user" id="user" placeholder = "Username">
-        <a href="#" id="submit">Enter</a>
-        <div id="userdata" class="clearfix"></div>
-    </div
+  <div align="center">
+    <h1>CS3012-GitHub API WebApp</h1>
+    <h2>This is a simple WebApp which captures data GitHub data from a given username. This project was an assignment for CS3012-Software Engineering module in 3rd Year of COmputer Science in Trinity College Dublin.</h2>
+    <p>Enter a Github username:</p>
+    <div id="inputid" margin="auto" class="input-group input-group-lg"> 
+      <input align="center" type="text" name="ghusername" id="ghusername" placeholder="Github username...">
+    </div>
+    <div id = "buttonid">
+      <button id="ghsubmitbtn"class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" type="submit">Enter</button>
+    </div>
+  </div>
+  
 
-<script type = "text/javascript">
-    $(function(){
-        $('#submit').on('click', function(e){
-            e.preventDefault();
-            $('userdata').html('<div id="loader"><p="Loading user ..."</p></div>');
-            var username = $('user').val();
-            var userurl  = 'https://api.github.com/users/'+username;
-            var reposurl = 'https://api.github.com/users/'+username+'/repos';
 
-            requestJSON(userurl,function(json)) {
-                if(json.message == "Not FOund" || username == ''){
-                    $('#userdata').html("<h2>Invalid input, no user found</h2>");
-                
-                }
-                else{
-                    var name    =json.name;
-                    var username =json.login;
-                    var avatar = json.avatar_url;
-                    var profurl = json.html_url;
-                    var location = json.location;
-                    var followers = json.followers;
-                    var following = json.following;
-                    var repocount = json.public_repos;
+  <div id="myModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="ghapidata" class="clearfix"></div>
+      </div>
+  </div>
 
-                
-                }
-            }
-        }
-    }
+<script type="text/javascript">
+var modal = document.getElementById('myModal');
+var btn = document.getElementById("ghsubmitbtn");
+var span = document.getElementsByClassName("close")[0];
+
+btn.onclick = function() {
+    modal.style.display = "block";
 }
 
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+$(function(){
+  $('#ghsubmitbtn').on('click', function(e){
+    e.preventDefault();
+    $('#ghapidata').html('<div id="loader"><img src="css/loader.gif" alt="loading..."></div>');
+    
+    var username = $('#ghusername').val();
+    var requri   = 'https://api.github.com/users/'+username;
+    var repouri  = 'https://api.github.com/users/'+username+'/repos';
+    
+    requestJSON(requri, function(json) {
+      if(json.message == "Not Found" || username == '') {
+        $('#ghapidata').html("<h2>No User Info Found</h2>");
+      }
+      
+      else {
+        // else we have a user and we display their info
+        var fullname   = json.name;
+        var username   = json.login;
+        var aviurl     = json.avatar_url;
+        var profileurl = json.html_url;
+        var location   = json.location;
+        var followersnum = json.followers;
+        var followingnum = json.following;
+        var reposnum     = json.public_repos;
+        
+        if(fullname == undefined) { fullname = username; }
+        
+        var output = '<h2>'+fullname+' <span class="smallname">(@<a href="'+profileurl+'" target="_blank">'+username+'</a>)</span></h2>';
+        output = output + '<div class="ghcontent"><div class="avi"><a href="'+profileurl+'" target="_blank"><img src="'+aviurl+'" width="80" height="80" alt="'+username+'"></a></div>';
+        output = output + '<p>Followers: '+followersnum+' - Following: '+followingnum+'<br>Repos: '+reposnum+'</p></div>';
+        
+        var repositories;
+        $.getJSON(repouri, function(json){
+          repositories = json;   
+          outputPageContent();                
+        });          
+        
+        function outputPageContent() {
+          if(repositories.length == 0) { output = output + '<p>No repos!</p></div>'; }
+          
+          $('#ghapidata').html(output);
+        } // end outputPageContent()
+      } // end else statement
+    }); // end requestJSON Ajax call
+  }); // end click event handler
+  
+  function requestJSON(url, callback) {
+    $.ajax({
+      url: url,
+      complete: function(xhr) {
+        callback.call(null, xhr.responseJSON);
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>
